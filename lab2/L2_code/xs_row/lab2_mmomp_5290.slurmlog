@@ -1,0 +1,28 @@
+Running job: lab2-mmomp!
+We are running on soctf-pdc-004.d1.comp.nus.edu.sg
+Job started at Tue Sep 12 10:51:53 PM +08 2023
+Arguments to your executable: 2000 256
+Compiling...
+Running...
+Usage: ./mm-omp-row <size> <threads>
+Matrix multiplication of size 2000 using 256 threads
+Matrix multiplication took 5.85 seconds
+
+ Performance counter stats for './mm-omp-row 2000 256':
+
+        116,300.57 msec task-clock                #   19.116 CPUs utilized          
+            27,393      context-switches          #  235.536 /sec                   
+             2,601      cpu-migrations            #   22.364 /sec                   
+            14,293      page-faults               #  122.897 /sec                   
+   289,060,946,663      cycles                    #    2.485 GHz                    
+   473,171,520,221      instructions              #    1.64  insn per cycle         
+    16,220,995,987      branches                  #  139.475 M/sec                  
+         6,016,564      branch-misses             #    0.04% of all branches        
+
+       6.084085804 seconds time elapsed
+
+     116.218167000 seconds user
+       0.107927000 seconds sys
+
+
+Job ended at Tue Sep 12 10:52:00 PM +08 2023

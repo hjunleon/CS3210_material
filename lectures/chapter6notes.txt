@@ -1,0 +1,19 @@
+Warp divergence occurs when two threads of the same warp diverge in their execution due to a branch instruction, where one thread branches and the other does not.
+- https://saturncloud.io/blog/an-introduction-to-streaming-multiprocessors-blocks-and-threads-in-cuda/
+
+
+A register file is an array of processor registers in a central processing unit (CPU). 
+Register banking is the method of using a single name to access multiple different physical registers depending on the operating mode.
+
+The register file is the component that contains all the general purpose registers of the microprocessor. A few CPUs also place special registers such as the PC and the status register in the register file. Other CPUs keep them separate.
+
+Warps: group of 32 parallel threads 
+
+https://saturncloud.io/blog/understanding-coalesced-and-uncoalesced-memory-transactions-in-gpu-compute-13/#:~:text=Coalesced%20memory%20transactions%20occur%20when,all%2032%20bytes%20at%20once.
+- Transaction: simple read or write operation transferring certain amount of data between CPU and GPU
+- Coalesced memory transactions occur when GPU access memory in a contiguous block. E.g. when reading 32 bytes of data, if the data is stored contiguously just need one coalesced memory read. 
+- Uncoalesced memory transactions require more sub-transactions to retrive all available data
+
+-One common technique for optimizing for coalesced memory transactions is to use “padding.” Padding is the process of adding extra space between data elements in memory to ensure that they’re aligned on memory boundaries that are multiples of the GPU’s memory access size. ( since GPU transactions are in 32 bytes, and GPU data are 32 byte aligned, padding can ensure that data isn't split between 2 32 byte regions as that's considered 2 blocks )
+
+Throughput is the number of processor clocks it takes for an instruction to execute or perform its calculations.

@@ -1,0 +1,1 @@
+scp -r e0528182@soctf-pdc-002.d1.comp.nus.edu.sg:/nfs/home/e0528182/lab2/i7_GFLOPS i7_GFLOPS

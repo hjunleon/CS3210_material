@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>CS3210 Long Primer&colon; C&plus;&plus; In Detail</title>
+        <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+/* From extension foam.foam-vscode */
+.foam-placeholder-link {
+  color: var(--vscode-editorWarning-foreground);
+  cursor: default;
+}
+
+.foam-note-link,
+.foam-attachment-link {
+  color: var(--vscode-textLink-foreground);
+}
+
+.foam-tag {
+  color: var(--vscode-editorLineNumber-foreground);
+}
+
+.foam-cyclic-link-warning {
+  background-color: var(--vscode-editorError-background);
+  color: var(--vscode-editorError-foreground);
+}
+
+.embed-container-note {
+  padding: 0.5em;
+  margin: 1.5em 0;
+  border: 1px solid var(--vscode-editorLineNumber-foreground);
+}
+
+.embed-container-attachment {
+  padding: 0.25em;
+  margin: 1.5em 0;
+  text-align: center;
+  border: 1px solid var(--vscode-editorLineNumber-foreground);
+}
+
+.embed-container-image {
+  margin: auto;
+  padding: 0.25em;
+  text-align: center;
+}
+
+</style>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="cs3210-long-primer-c-in-detail">CS3210 Long Primer: C++ In Detail</h1>
+<ul>
+<li><a href="#cs3210-long-primer-c-in-detail">CS3210 Long Primer: C++ In Detail</a>
+<ul>
+<li><a href="#introduction">Introduction</a>
+<ul>
+<li><a href="#history">History</a></li>
+</ul>
+</li>
+<li><a href="#popular-resources">Popular resources</a>
+<ul>
+<li><a href="#google">Google</a></li>
+<li><a href="#cppreference">cppreference</a></li>
+<li><a href="#blog-posts">Blog posts</a></li>
+<li><a href="#godboltorg">godbolt.org</a></li>
+</ul>
+</li>
+<li><a href="#compiling-your-code">Compiling your code</a></li>
+<li><a href="#the-standard-library-std">The standard library: <code>std</code></a>
+<ul>
+<li><a href="#input-and-output">Input and Output</a></li>
+</ul>
+</li>
+<li><a href="#stl-containers">STL Containers</a>
+<ul>
+<li><a href="#instantiating-containers-of-particular-types">Instantiating containers of particular types</a></li>
+<li><a href="#inserting-to-containers">Inserting to containers</a>
+<ul>
+<li><a href="#pushinsert-vs-emplace">Push/insert vs emplace</a></li>
+</ul>
+</li>
+<li><a href="#reading-or-mutating-containers">Reading or mutating containers</a></li>
+<li><a href="#iterating-through-containers">Iterating through containers</a></li>
+</ul>
+</li>
+<li><a href="#classes-and-objects">Classes and objects</a>
+<ul>
+<li><a href="#defining-a-class">Defining a class</a>
+<ul>
+<li><a href="#class"><code>class</code></a></li>
+</ul>
+</li>
+<li><a href="#default-constructor-and-destructor">Default constructor and destructor</a>
+<ul>
+<li><a href="#object-lifetime-and-raii">Object lifetime and &quot;RAII&quot;</a></li>
+<li><a href="#defining-custom-constructor-and-destructor">Defining custom constructor and destructor</a></li>
+<li><a href="#default-constructor">Default constructor</a></li>
+<li><a href="#destructor">Destructor</a></li>
+</ul>
+</li>
+<li><a href="#additional-constructors">Additional constructors</a></li>
+<li><a href="#references">References</a></li>
+<li><a href="#rule-of-3">Rule of 3</a>
+<ul>
+<li><a href="#copy-constructor-and-copy-assignment-operator">Copy constructor and copy assignment operator</a></li>
+<li><a href="#copy-constructor">Copy constructor</a></li>
+<li><a href="#copy-assignment-operator">Copy assignment operator</a></li>
+<li><a href="#demo">Demo</a></li>
+</ul>
+</li>
+<li><a href="#move-constructor-and-move-assignment-operator">Move constructor and move assignment operator</a>
+<ul>
+<li><a href="#move-only-types">Move-only types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="introduction">Introduction</h2>
+<p>We primarily use C++ in CS3210 for labs and tutorials, and it is the recommended language for assignments. We will accept C for assignments if you really want to use it instead, but we find that students ultimately prefer to use C++ because of its more powerful features. We will support C++ features up to C++17 in this module.</p>
+<p>This primer is intended to be an <strong>overview of some features of C++</strong> since you should already have some C familiarity from CS2100/CS2106. It is not intended to be a complete introduction, as  C++ in its <em>entirety</em> is significantly more complex than C. We will not focus on the advanced features of C++ in CS3210 - you may view other resources e.g., the <a href="https://www.cplusplus.com/doc/tutorial/">cplusplus.com C++ Tutorial</a>, and <a href="https://read.seas.harvard.edu/cs161/2021/doc/cplusplus/">CS161's primer</a>. We will focus on describing the <strong>features that are likely to make your life easier</strong> and <strong>demystifying certain behaviors</strong>.</p>
+<p><span style="color:red">YOU DO NOT NEED TO KNOW EVERYTHING HERE FOR CS3210!</span> You can still write your C++ code like C. This guide exists so that you know that these features / behavior exists, and parts of this primer are shared with CS3211.</p>
+<h3 id="history">History</h3>
+<p>While some people might consider C++ as just &quot;C with classes&quot;, the C++ language has evolved far beyond the
+C language, with many new idioms and programming paradigms that weren't
+possible in the C language.  In fact, C++ is still evolving, with the C++<strong>20</strong> language specification published in 2020 (though we only support up to C++17 in this module).</p>
+<p>Due to the sheer number of language features, C++
+is often feared, as its complexity can sometimes result in unexpected behaviour
+or inexplicable error messages. However, when language features are properly
+understood, it often makes code much easier to write.</p>
+<p>In CS3210, we try to reduce the number of language features that we expose you
+to as it's not necessary to use most of the complex features C++ has. However,
+if you happen to be more familiar with C++, feel free to use fancier features
+according to your best judgement! This is not likely to result in faster performance, but it may make your code easier to write and read.</p>
+<p>However, we cannot and will not walk you through every part of C++. Exploring C++ is a good experience and may help you pick up
+other languages more quickly in the future. If you get stuck during your
+explorations, feel free to approach your TA for help (but please remember to
+put in sufficient effort on your own first).</p>
+<h2 id="popular-resources">Popular resources</h2>
+<h3 id="google">Google</h3>
+<p>As usual, Google can be a good reference. Here are some sample queries:</p>
+<ol>
+<li>Upon seeing a massive wall of errors, find the first (short) error:
+<ul>
+<li>C++ error: 'job' has incomplete type</li>
+</ul>
+</li>
+<li>Get reference for a library function or class:
+<ul>
+<li>std deque cppreference</li>
+</ul>
+</li>
+<li>Look for explainer posts for a particular topic:
+<ul>
+<li>C++ memory model explained</li>
+</ul>
+</li>
+</ol>
+<h3 id="cppreference">cppreference</h3>
+<p>cppreference is a wiki for C++ and is usually nicer to look at than some of the
+alternatives.</p>
+<p>Often, the reference is interleaved with all the diffs between each version of
+C++, see this for a particularly bad example of messy diffs:
+<a href="https://en.cppreference.com/w/cpp/string/basic_string/basic_string">https://en.cppreference.com/w/cpp/string/basic_string/basic_string</a></p>
+<p>There is a feature to only show the reference for a particular version of C++,
+but this requires creating an account. See this C++ Weekly video for details:
+<a href="https://youtu.be/eSDVVrjFh54?t=1030">https://youtu.be/eSDVVrjFh54?t=1030</a></p>
+<h3 id="blog-posts">Blog posts</h3>
+<p>It is important to ensure that the blog post is recent (i.e. probably not older
+than 2010).</p>
+<h3 id="godboltorg"><a href="http://godbolt.org">godbolt.org</a></h3>
+<p>Lets you try compiling, running, disassembling, and sharing short snippets of
+code in the browser. Great way to send code to your TA when asking for help!</p>
+<p><a href="https://godbolt.org/">https://godbolt.org/</a></p>
+<h2 id="compiling-your-code">Compiling your code</h2>
+<p>You will need a C++ compiler like <code>g++</code> or <code>clang++</code>. Our lab machines will have an updated version of them, i.e., <code>g++ 12</code> and <code>clang++ 16</code>, and you can install these locally on your own machine as well. For this primer, you may also use <a href="https://godbolt.org">Godbolt</a> to test code quickly.</p>
+<p>You will need pass the flag <code>-std=c++17</code> if you are using the latest features. Often, you will have to enable POSIX threads (<code>-pthread</code>) when compiling your code. Other useful flags are:</p>
+<ul>
+<li><code>-O3</code>: Enable optimizations</li>
+<li><code>-g</code>: Enable debugging symbols</li>
+<li><code>-Wpedantic -Wconversion -Wall -Werror</code>: Enable a reasonable set of warnings</li>
+<li><code>-fsanitize=address</code>: Compile with AddressSanitizer (detects memory errors)</li>
+<li><code>-fsanitize=thread</code>: Compile with ThreadSanitizer (detects data races and deadlocks)</li>
+</ul>
+<p>An example of a simple compilation command without flags would be <code>g++ my_program.cpp</code>, whereas an entire compilation command could be <code>g++ -std=c++17 -pthread -O3 -g -Wpedantic -Wconversion -Wall -Werror -fsanitize=address -fsanitize=thread -o my_program my_program.cpp</code>, which compiles <code>my_program.cpp</code> into an executable called <code>my_program</code>.</p>
+<h2 id="the-standard-library-std">The standard library: <code>std</code></h2>
+<p>C++ has a standard library called <code>std</code> that contains many useful functions and data structures. We will use the <code>std</code> library throughout CS3210. The <code>std</code> library is defined in the <code>std</code> namespace, so we need to use the <code>std::</code> prefix to access its members.</p>
+<h3 id="input-and-output">Input and Output</h3>
+<p>C++ has a standard library for input and output, and while we can use <code>printf</code> and <code>scanf</code>, there are more idiomatic ways in C++. The standard library is called <code>iostream</code>, and it contains the <code>std::cout</code> and <code>std::cin</code> objects for output and input respectively.</p>
+<pre><code class="language-c++"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span>
+
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>{
+    std::cout &lt;&lt; <span class="hljs-string">&quot;Enter your name: &quot;</span>;
+    <span class="hljs-comment">// String data structure from the std library</span>
+    <span class="hljs-comment">// We will cover this in more detail later </span>
+    std::string name;
+    <span class="hljs-comment">// Reads the next line of input into name</span>
+    std::cin &gt;&gt; name;
+    <span class="hljs-comment">// Prints &quot;Hello, &lt;name&gt;!&quot; to the console with a newline</span>
+    std::cout &lt;&lt; <span class="hljs-string">&quot;Hello, &quot;</span> &lt;&lt; name &lt;&lt; <span class="hljs-string">&quot;!&quot;</span> &lt;&lt; std::endl;
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+</code></pre>
+<h2 id="stl-containers">STL Containers</h2>
+<p>STL stands for &quot;Standard Template Library&quot;, and has two parts: containers and
+algorithms. The word &quot;Template&quot; in STL refers to the fact that the classes
+provided for us to use are generic, and can be instantiated to a specific type
+depending on your needs.</p>
+<p>STL Containers reference, which contains a list of the STL container types: <a href="https://en.cppreference.com/w/cpp/container">https://en.cppreference.com/w/cpp/container</a></p>
+<p>While you <em>may</em> need to implement your own concurrent data structures, you will
+probably also want to make use of the standard library's single-threaded
+containers when implementing portions of your algorithms. Reminder: these containers are <em>not thread-safe!</em> (i.e., cannot be safely accessed concurrently by multiple threads)</p>
+<p>For the most part, using these containers isn't very difficult, so in this
+section we provide a small cookbook. When you start using these for yourself,
+referring to cppreference will be very helpful.</p>
+<h3 id="instantiating-containers-of-particular-types">Instantiating containers of particular types</h3>
+<pre><code class="language-c++">std::vector&lt;<span class="hljs-type">int</span>&gt; vector_of_ints;
+std::vector&lt;std::string&gt; vector_of_strings;
+std::unordered_map&lt;std::string, <span class="hljs-type">int</span>&gt; map_of_string_to_int;
+</code></pre>
+<p>To create a container of a particular type, put the types you need in angle
+brackets, and &quot;pass&quot; them to the type. These parameters are called template
+parameters, and an explanation of what they mean are on the cppreference page
+of each container type.</p>
+<p>For example, for <code>std::vector</code>,
+<a href="https://en.cppreference.com/w/cpp/container/vector">https://en.cppreference.com/w/cpp/container/vector</a></p>
+<p><img src="file:////home/sriram/Projects/CS3210-AY2324-S1/labs_tutorials/L0-primer/cppreference-vector-template-parameters.png" alt="" title="std::vector template parameters declaration"></p>
+<p><img src="file:////home/sriram/Projects/CS3210-AY2324-S1/labs_tutorials/L0-primer/cppreference-vector-template-parameters-doc.png" alt="" title="std::vector template parameters documentation"></p>
+<p>Thus, we know that <code>std::vector</code> takes in two template parameters, where the
+second one is defaulted to an allocator class, and that <code>std::vector&lt;int&gt;</code> is
+a vector whose elements have type <code>int</code>.</p>
+<p>Another example, for <code>std::queue</code>,
+<a href="https://en.cppreference.com/w/cpp/container/queue">https://en.cppreference.com/w/cpp/container/queue</a></p>
+<p><img src="file:////home/sriram/Projects/CS3210-AY2324-S1/labs_tutorials/L0-primer/cppreference-queue-template-parameters.png" alt="" title="std::queue template parameters documentation"></p>
+<p>We see that <code>std::queue</code> also takes in two template parameters, but this time,
+the second parameter should be another container type, for example <code>std::deque</code>
+in this case. Thus <code>std::queue&lt;int, std::list&lt;int&gt;&gt;</code> is a queue whose
+underlying container is a doubly-linked list.</p>
+<h3 id="inserting-to-containers">Inserting to containers</h3>
+<pre><code class="language-c++">vector_of_ints.<span class="hljs-built_in">push_back</span>(<span class="hljs-number">1</span>);
+vector_of_strings.<span class="hljs-built_in">emplace_back</span>(<span class="hljs-string">&quot;Hello world!&quot;</span>);
+map_of_string_to_int.<span class="hljs-built_in">insert</span>({<span class="hljs-string">&quot;one&quot;</span>, <span class="hljs-number">1</span>});
+map_of_string_to_int.<span class="hljs-built_in">emplace</span>(<span class="hljs-string">&quot;two&quot;</span>, <span class="hljs-number">2</span>);
+</code></pre>
+<p>STL containers typically use the same few words for their operations.
+<code>push_back</code> applies to most sequence containers (like <code>std::vector</code>,
+<code>std::list</code>, etc.) that have a &quot;back&quot; side.
+<code>insert</code> is similar to <code>push_back</code> but either allows you to specify where in
+a sequence container to insert it in, or used for (un)ordered containers like
+<code>std::unordered_map</code>.
+As usual, refer to the class's reference page for the list of operations you
+may use.</p>
+<h4 id="pushinsert-vs-emplace">Push/insert vs emplace</h4>
+<p>Reference: <a href="https://abseil.io/tips/112">https://abseil.io/tips/112</a></p>
+<p>In the example above, we showed two ways of inserting to the back of a vector,
+<code>push_back</code> and <code>emplace_back</code>.</p>
+<p>The difference is subtle. <code>push_back</code> takes a fully constructed object as
+input, then copies or moves that object into the container.
+On the other hand, <code>emplace_back</code> takes in the arguments to the element's
+constructor as input, and constructs the object directly into the container.</p>
+<p>To illustrate, we can discuss the difference between the following lines:</p>
+<pre><code class="language-c++">vector_of_strings.<span class="hljs-built_in">push_back</span>(<span class="hljs-string">&quot;Hello world!&quot;</span>);
+vector_of_strings.<span class="hljs-built_in">emplace_back</span>(<span class="hljs-string">&quot;Hello world!&quot;</span>);
+vector_of_strings.<span class="hljs-built_in">emplace_back</span>(<span class="hljs-string">&quot;abcde&quot;</span>, <span class="hljs-number">3</span>);
+</code></pre>
+<p>In the first line, <code>push_back</code> expects a <code>std::string</code> as input. However, what
+was provided is a string literal, so C++ will call the 5th constructor of
+<code>std::string</code> to get a temporary <code>std::string</code> object. This object is then
+moved into the vector, and then the temporary string is destructed.</p>
+<p>In the second line, the arguments that <code>emplace_back</code> can take depends on the
+constructors of <code>std::string</code>. Since we have passed a single string literal,
+<code>emplace_back</code> will call the 5th constructor of <code>std::string</code> to create the
+string directly in the vector, without creating any temporaries.</p>
+<p>In the third line, the arguments we passed to <code>emplace_back</code> matches the 4th
+constructor of <code>std::string</code>, and thus the string containing the bytes &quot;abc&quot;
+will be pushed into the vector.</p>
+<p><img src="file:////home/sriram/Projects/CS3210-AY2324-S1/labs_tutorials/L0-primer/cppreference-string-ctors-4-5.png" alt="" title="std::string constructors"></p>
+<p>However, there are many times where using <code>emplace_back</code> is not needed and
+sometimes even causes bugs.</p>
+<pre><code class="language-c++">vector_of_vector_of_int.<span class="hljs-built_in">push_back</span>(<span class="hljs-number">1</span>);
+vector_of_vector_of_int.<span class="hljs-built_in">emplace_back</span>(<span class="hljs-number">1</span>);
+</code></pre>
+<p>Here, the first line fails to compile as 1 cannot be converted into
+a <code>std::vector&lt;int&gt;</code>. However, in the second line, we accidentally invoke the
+4th constructor of <code>std::vector&lt;int&gt;</code>, and thus a vector containing four
+uninitialized <code>int</code>s is inserted into the vector.</p>
+<p><img src="file:////home/sriram/Projects/CS3210-AY2324-S1/labs_tutorials/L0-primer/cppreference-vector-ctor-4.png" alt="" title="std::vector initial size constructor"></p>
+<p>Recommendation: Use <code>push_back</code> when you just want to put something in
+a container, use <code>emplace_back</code> when you're creating something new and you are
+very aware that you are in fact calling a constructor.</p>
+<h3 id="reading-or-mutating-containers">Reading or mutating containers</h3>
+<pre><code class="language-c++"><span class="hljs-comment">// Return index 5 with no bounds checking.</span>
+vector_of_ints[<span class="hljs-number">5</span>];
+
+<span class="hljs-comment">// If 5 is in bounds, return index 5, otherwise an exception is thrown.</span>
+vector_of_ints.<span class="hljs-built_in">at</span>(<span class="hljs-number">5</span>);
+
+<span class="hljs-comment">// If key &quot;one&quot; exists, return corresponding value,</span>
+<span class="hljs-comment">// otherwise an exception is thrown.</span>
+map_of_string_to_int.<span class="hljs-built_in">at</span>(<span class="hljs-string">&quot;one&quot;</span>);
+
+<span class="hljs-comment">// If key &quot;one&quot; exists, return corresponding value,</span>
+<span class="hljs-comment">// otherwise it&#x27;s added with a default constructed value,</span>
+<span class="hljs-comment">// and that value is returned</span>
+map_of_string_to_int[<span class="hljs-string">&quot;one&quot;</span>];
+</code></pre>
+<p>These expressions may also be assigned to, and bounds checking also applies.</p>
+<pre><code class="language-c++"><span class="hljs-comment">// Mutate or create new entry mapping &quot;one&quot; to 5</span>
+map_of_string_to_int[<span class="hljs-string">&quot;one&quot;</span>] = <span class="hljs-number">5</span>;
+
+<span class="hljs-comment">// Mutate existing entry for &quot;one&quot; to 5,</span>
+<span class="hljs-comment">// throws exception if entry does not exist</span>
+map_of_string_to_int.<span class="hljs-built_in">at</span>(<span class="hljs-string">&quot;one&quot;</span>) = <span class="hljs-number">5</span>;
+</code></pre>
+<h3 id="iterating-through-containers">Iterating through containers</h3>
+<p>Reference: <a href="https://en.cppreference.com/w/cpp/language/range-for">https://en.cppreference.com/w/cpp/language/range-for</a></p>
+<p>In this section we show how the syntax of a range based for loop works, which
+all containers support as a means of iteration.</p>
+<p>Simplifying slightly, range-based for loops are just a syntax sugar for using
+the lower level <code>.begin()</code> and <code>.end()</code> iterators that containers support. (See
+the reference for exact details). It more or less works in the following way:</p>
+<pre><code class="language-c++"><span class="hljs-keyword">for</span> (type varname : container) { <span class="hljs-comment">/* ... */</span> }
+<span class="hljs-comment">// syntax sugar (ish) for:</span>
+iterator end = container.<span class="hljs-built_in">end</span>();
+<span class="hljs-keyword">for</span> (iterator it = container.<span class="hljs-built_in">begin</span>(); it != <span class="hljs-built_in">end</span>(); ++it) {
+  type varname = *it; <span class="hljs-comment">// Access element pointed to by the iterator</span>
+  <span class="hljs-comment">/* ... */</span>
+}
+</code></pre>
+<p>I'm showing you how this desugaring works since you may occasionally want to
+fall back to this lower level iterator syntax to perform certain operations
+with more finesse. But in the vast majority of cases, range based for loops are
+better.</p>
+<p>Now we show some examples of how this feature can be used, and some potential
+gotchas.</p>
+<pre><code class="language-c++"><span class="hljs-comment">// Iterate by value.</span>
+<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i : vector_of_ints) { <span class="hljs-comment">/* A */</span> }
+
+<span class="hljs-comment">// Iterate by value, but an implicit conversion happens</span>
+<span class="hljs-comment">// when the element pointed by the iterator is accessed,</span>
+<span class="hljs-comment">// converting the int to a double silently. Be careful!</span>
+<span class="hljs-keyword">for</span> (<span class="hljs-type">double</span> d : vector_of_ints) { <span class="hljs-comment">/* B */</span> }
+
+<span class="hljs-comment">// Iterate by value, and note in particular this means</span>
+<span class="hljs-comment">// each string will have to be copied out into s.</span>
+<span class="hljs-keyword">for</span> (std::string s : vector_of_strings) { <span class="hljs-comment">/* C */</span> }
+
+<span class="hljs-comment">// Iterate by (mutable) reference, so no copy is made.</span>
+<span class="hljs-comment">// Since s is a mutable reference, you could change s</span>
+<span class="hljs-comment">// and the change will be reflected in the vector.</span>
+<span class="hljs-keyword">for</span> (std::string &amp;s : vector_of_strings) { <span class="hljs-comment">/* D */</span> }
+
+<span class="hljs-comment">// Iterate entries (key-value pairs) by (mutable) reference.</span>
+<span class="hljs-keyword">for</span> (std::pair&lt;<span class="hljs-type">const</span> std::string, <span class="hljs-type">int</span>&gt; &amp;entry : map_of_string_to_int) { <span class="hljs-comment">/* E */</span> }
+
+<span class="hljs-comment">// Same as E, but the type is provided by the class</span>
+<span class="hljs-comment">// instead of looked up in cppreference.</span>
+<span class="hljs-keyword">for</span> (std::unordered_map&lt;std::string, <span class="hljs-type">int</span>&gt;::value_type &amp;entry : map_of_string_to_int) { <span class="hljs-comment">/* F */</span> }
+
+<span class="hljs-comment">// Same as E, but uses type inference.</span>
+<span class="hljs-comment">// This way, we can avoid performing accidental conversions!</span>
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span> &amp;entry : map_of_string_to_int) { <span class="hljs-comment">/* G */</span> }
+
+<span class="hljs-comment">// Iterate entries by immutable reference.</span>
+<span class="hljs-keyword">for</span> (<span class="hljs-type">const</span> <span class="hljs-keyword">auto</span> &amp;entry : map_of_string_to_int) { <span class="hljs-comment">/* H */</span> }
+</code></pre>
+<p>In general, you will want to prefer the following ways of iterating through a container:</p>
+<ul>
+<li>A: If you're just accessing a container of &quot;simple&quot; type, where a by-value is
+better than by-reference. Using type inference here is also a good idea.</li>
+<li>G: If you intend to mutate all entries of a container in place.</li>
+<li>H: If you intend to iterate over a container where copying is expensive (e.g.
+<code>std::string</code>)</li>
+</ul>
+<h2 id="classes-and-objects">Classes and objects</h2>
+<p>Now that our toes are wet, let's flesh out how C++ classes and objects work.</p>
+<p>Full godbolt:
+<a href="https://godbolt.org/z/9zzvbWfdz">https://godbolt.org/z/9zzvbWfdz</a></p>
+<h3 id="defining-a-class">Defining a class</h3>
+<pre><code class="language-c++"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">A</span> {
+  <span class="hljs-type">char</span> x;
+  std::string y; <span class="hljs-comment">// 7 bytes padding is added before y to satisfy alignment</span>
+  std::string saga;
+};
+</code></pre>
+<p>At its most basic form, C++ classes can be defined just like C structs, and
+member access works the usual way.</p>
+<h4 id="class"><code>class</code></h4>
+<p>The <code>class</code> keyword may also be used to define classes, but this makes everything <code>private</code> by default. We can make things <code>public</code> similar to Java.</p>
+<pre><code class="language-c++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span> {
+  <span class="hljs-type">char</span> a_private_member;
+ <span class="hljs-keyword">public</span>:
+  <span class="hljs-type">char</span> x;
+  std::string y; <span class="hljs-comment">// 7 bytes padding is added before y to satisfy alignment</span>
+  std::string saga;
+};
+</code></pre>
+<h3 id="default-constructor-and-destructor">Default constructor and destructor</h3>
+<h4 id="object-lifetime-and-raii">Object lifetime and &quot;RAII&quot;</h4>
+<p>Reference: <a href="https://en.cppreference.com/w/cpp/language/raii">https://en.cppreference.com/w/cpp/language/raii</a></p>
+<p>Unlike C however, C++ comes with a notion of an object lifetime (much looser
+than say, Rust's rules for lifetime), where a constructor is called at the start of
+each object's lifetime, and a destructor is called at the end of its lifetime.</p>
+<pre><code class="language-c++"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">demo1</span><span class="hljs-params">()</span> </span>{
+  A a; <span class="hljs-comment">// Start of lifetime of a</span>
+  {
+    A b; <span class="hljs-comment">// Start of lifetime of b</span>
+  } <span class="hljs-comment">// End of lifetime of b</span>
+  A c; <span class="hljs-comment">// Start of lifetime of c</span>
+  <span class="hljs-comment">// End of lifetime of c</span>
+  <span class="hljs-comment">// End of lifetime of a</span>
+}
+</code></pre>
+<p>This enables a pattern commonly known as RAII:</p>
+<ul>
+<li><strong>R</strong>esource</li>
+<li><strong>A</strong>cquisition</li>
+<li><strong>I</strong>s</li>
+<li><strong>I</strong>nitialization</li>
+</ul>
+<p>This refers to tying &quot;resources&quot; to specific object lifetimes. When a resource
+is acquired, a handler object is constructed that owns said resource. When that
+object goes out of scope and thus reaches the end of its lifetime, its
+destructor cleans up said resource.</p>
+<p>Since this pattern requires you to write your own custom destructor, some
+prefer the acronym RRID instead, which emphasizes the end of an object's
+lifetime instead of its beginning.</p>
+<ul>
+<li><strong>R</strong>esource</li>
+<li><strong>R</strong>elease</li>
+<li><strong>I</strong>s</li>
+<li><strong>D</strong>estruction</li>
+</ul>
+<p>For example, <code>std::string</code> may allocate a buffer to hold its characters during
+construction or over the course of many operations, and when the <code>std::string</code>
+goes out of scope, its lifetime ends, thus calling its destructor. The
+destructor then deallocates the buffer, ensuring that no memory is leaked.</p>
+<p>TLDR: this is useful because we can allocate complex objects that are destroyed when they go out of scope. This lets us avoid using <code>malloc/free</code> or <code>new/delete</code> to allocate and deallocate memory whenever possible.</p>
+<p>For extra exploration, see <a href="https://en.cppreference.com/book/intro/smart_pointers">smart pointers in C++</a>.</p>
+<h4 id="defining-custom-constructor-and-destructor">Defining custom constructor and destructor</h4>
+<p>Let's define custom constructors and destructors for our class. Let's store the
+&quot;story&quot; of how our struct's data came to be in the <code>saga</code> field.</p>
+<pre><code class="language-c++"><span class="hljs-built_in">A</span>() : <span class="hljs-built_in">x</span>(<span class="hljs-string">&#x27;1&#x27;</span>), <span class="hljs-built_in">y</span>(), <span class="hljs-built_in">saga</span>(<span class="hljs-string">&quot;default constructed&quot;</span>) {
+  std::cout &lt;&lt; <span class="hljs-string">&quot;Default constructor called&quot;</span> &lt;&lt; std::endl;
+}
+
+~<span class="hljs-built_in">A</span>() { std::cout &lt;&lt; <span class="hljs-string">&quot;Destructor called, object was &quot;</span> &lt;&lt; saga &lt;&lt; std::endl; }
+</code></pre>
+<p>With this constructor and destructor, we see the output matches the start and
+ends of each object's lifetime.</p>
+<pre><code class="language-text">Default constructor called
+Default constructor called
+Destructor called, object was default constructed
+Default constructor called
+Destructor called, object was default constructed
+Destructor called, object was default constructed
+</code></pre>
+<h4 id="default-constructor">Default constructor</h4>
+<p>The syntax of a constructor is like a function named exactly like the class with no return type. A default constructor is a constructor that takes no arguments.</p>
+<pre><code class="language-c++"><span class="hljs-comment">// Basic form of the default constructor,</span>
+<span class="hljs-comment">// /* ... */ is run after members are constructed</span>
+<span class="hljs-comment">// (from first member to last member).</span>
+<span class="hljs-built_in">type</span>() { <span class="hljs-comment">/* ... */</span> }
+
+<span class="hljs-comment">// This time, we can modify how exactly each member is constructed</span>
+<span class="hljs-comment">// by passing the constructor arguments to each member</span>
+<span class="hljs-comment">// after a colon and before the opening brace.</span>
+<span class="hljs-built_in">type</span>() : <span class="hljs-built_in">member</span>(constructor args), <span class="hljs-built_in">member2</span>( ... ), ... { <span class="hljs-comment">/* ... */</span> } <span class="hljs-comment">// B</span>
+</code></pre>
+<p>In the example above, we wrote a default constructor for <code>A()</code> that first
+constructs its members by passing <code>'1'</code> to the constructor for <code>char,</code> nothing
+to the constructor for <code>y,</code> and &quot;default constructed&quot; to the constructor of
+<code>saga</code>. Once the members have been constructed, the body of <code>A()</code> is run, which
+prints &quot;Default constructor called&quot; to stdout.</p>
+<h4 id="destructor">Destructor</h4>
+<p>Similar to the default constructor but with a tilde <code>~</code> before the class name.</p>
+<pre><code class="language-c++">~<span class="hljs-built_in">type</span>() { <span class="hljs-comment">/* ... */</span> }
+</code></pre>
+<p>This time, <code>/* ... */</code> runs first, and then the destructors of each member are
+called (from last member to first member).</p>
+<h3 id="additional-constructors">Additional constructors</h3>
+<p>As you may have noticed, we frequently do not use default constructors when
+creating objects like <code>std::string</code> instead passing data at
+construction. For example:</p>
+<pre><code class="language-c++"><span class="hljs-function">std::string <span class="hljs-title">s</span><span class="hljs-params">(<span class="hljs-string">&quot;Hello world!&quot;</span>)</span></span>;
+</code></pre>
+<p>If we want to create such additional constructors, we simply add our own function parameters into the constructor declaration.</p>
+<pre><code class="language-c++"><span class="hljs-built_in">A</span>(<span class="hljs-type">int</span> i)
+    : <span class="hljs-built_in">x</span>(<span class="hljs-string">&#x27;1&#x27;</span> + (<span class="hljs-type">char</span>)i),
+      <span class="hljs-built_in">y</span>(<span class="hljs-string">&quot;This string was constructed with A(int)&quot;</span>),
+      <span class="hljs-built_in">saga</span>(<span class="hljs-string">&quot;A(int) constructed&quot;</span>) {
+  std::cout &lt;&lt; <span class="hljs-string">&quot;A(int) constructor called&quot;</span> &lt;&lt; std::endl;
+}
+</code></pre>
+<h3 id="references">References</h3>
+<p>As mentioned before, C++ passes objects by value. Let's break down the
+following demo:</p>
+<pre><code class="language-c++"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">change_x_bad</span><span class="hljs-params">(A a)</span> </span>{ a.x = <span class="hljs-string">&#x27;C&#x27;</span>; }
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">change_x_good</span><span class="hljs-params">(A&amp; a)</span> </span>{ a.x = <span class="hljs-string">&#x27;C&#x27;</span>; }
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">demo2</span><span class="hljs-params">()</span> </span>{
+  A a;
+  <span class="hljs-built_in">change_x_bad</span>(a);
+  std::cout &lt;&lt; <span class="hljs-string">&quot;Mutate pass by value: &quot;</span> &lt;&lt; a.x &lt;&lt; std::endl;
+
+  {
+    A a_copy = a;
+    a_copy.x = <span class="hljs-string">&#x27;C&#x27;</span>;
+    std::cout &lt;&lt; <span class="hljs-string">&quot;Mutate copy: &quot;</span> &lt;&lt; a.x &lt;&lt; std::endl;
+    a = a_copy;
+    std::cout &lt;&lt; <span class="hljs-string">&quot;Copy mutated back to a: &quot;</span> &lt;&lt; a.x &lt;&lt; std::endl;
+  }
+
+  A b;
+  <span class="hljs-built_in">change_x_good</span>(b);
+  std::cout &lt;&lt; <span class="hljs-string">&quot;Mutate pass by reference: &quot;</span> &lt;&lt; b.x &lt;&lt; std::endl;
+
+  A c;
+  A&amp; c_ref = c;
+  c_ref.x = <span class="hljs-string">&#x27;C&#x27;</span>;
+  std::cout &lt;&lt; <span class="hljs-string">&quot;Mutate reference: &quot;</span> &lt;&lt; c.x &lt;&lt; std::endl;
+}
+</code></pre>
+<p>Output:</p>
+<pre><code class="language-text">Default constructor called
+Destructor called, object was default constructed
+Mutate pass by value: 1
+Mutate copy: 1
+Copy mutated back to a: C
+Destructor called, object was default constructed
+Default constructor called
+Mutate pass by reference: C
+Default constructor called
+Mutate reference: C
+Destructor called, object was default constructed
+Destructor called, object was default constructed
+Destructor called, object was default constructed
+</code></pre>
+<p>Let's break this down.</p>
+<pre><code class="language-text">// A a;
+Default constructor called
+// } of change_x_bad destructs argument named a
+Destructor called, object was default constructed
+// std::cout &lt;&lt; ...
+Mutate pass by value: 1
+</code></pre>
+<p>First we construct an object named <code>a</code>, and pass that object to <code>change_x_bad</code> by value. <code>change_x_bad</code> tries to modify <code>x</code>, but it only modifies its local copy. Furthermore, we can see that this local copy gets destroyed in the second line of the output, even though the original object <code>a</code> in <code>demo2</code> is left untouched, as shown by the third line of the output.</p>
+<pre><code class="language-text">// A a_copy = a; prints nothing
+// std::cout &lt;&lt; ...
+Mutate copy: 1
+// a = a_copy; prints nothing
+// std::cout &lt;&lt; ...
+Copy mutated back to a: C
+// } destructs a_copy
+Destructor called, object was default constructed
+</code></pre>
+<p>Trying to mutate an object passed by value is similar to performing a copy as shown in the second block of code in <code>demo2</code>. Here, it's clearer why mutating the copy does not mutate the original object.</p>
+<p>The reason why we have a &quot;Destructor called&quot; line in the output even though we don't have a corresponding &quot;constructor called&quot; line is because we have not yet overridden the copy constructor, something we'll get to shortly.</p>
+<p>If we'd like a function to mutate an object, then we can instead pass it by reference by adding an ampersand <code>&amp;</code> after the type name in the parameter list, for example <code>A&amp; a</code>.</p>
+<pre><code class="language-text">// A b;
+Default constructor called
+// } of change_x_good prints nothing as nothing to destruct
+// std::cout &lt;&lt; ...
+Mutate pass by reference: C
+</code></pre>
+<p>In the third block of code, we again construct a new object named <code>b</code>, and pass it by reference to <code>change_x_good</code>. This time, when <code>change_x_good</code> returns, we don't see any &quot;Destructor called&quot; line because there is no copy made. The <code>a</code> variable in <code>change_x_good</code> <em>refers</em> to the <code>b</code> object in the <code>demo2</code> scope. When we read <code>b.x</code> after the function call, we see that its value has indeed changed to <code>'C'</code>.</p>
+<pre><code class="language-text">// A c;
+Default constructor called
+// std::cout &lt;&lt; ...
+Mutate reference: C
+</code></pre>
+<p>Again, we can simulate this without a function call as we can also create reference variables with <code>A&amp; c_ref = c;</code>. We see that mutating the reference causes the change to show up in the original object as expected.</p>
+<pre><code class="language-text">// } of demo2 destructs c, b, a in that order.
+Destructor called, object was default constructed
+Destructor called, object was default constructed
+Destructor called, object was default constructed
+</code></pre>
+<h3 id="rule-of-3">Rule of 3</h3>
+<p>Reference: <a href="https://en.cppreference.com/w/cpp/language/rule_of_three">https://en.cppreference.com/w/cpp/language/rule_of_three</a></p>
+<p>Earlier, we noticed that copies were being created and destroyed, but since we
+did not define our own copy constructor, we saw a &quot;Destructor called&quot; line that
+did not have a corresponding &quot;constructor called&quot; line.</p>
+<p>This is because we broke the &quot;Rule of 3&quot;. We wanted to create a class where
+object lifetimes would become visible in stdout through logging messages, and
+thus we've started doing interesting things at the beginning and end of object
+lifetimes. By not creating a custom copy constructor, we missed a case where an
+object's lifetime could begin.</p>
+<p>Thus, the &quot;Rule of 3&quot; states that if a class requires either a custom
+destructor, copy constructor, or copy assignment operator, then it almost
+always needs all 3.</p>
+<h4 id="copy-constructor-and-copy-assignment-operator">Copy constructor and copy assignment operator</h4>
+<p>Let's fix that by defining a custom copy constructor and copy assignment
+operator:</p>
+<pre><code class="language-c++"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">B</span> {
+  <span class="hljs-comment">// ... members, default ctor, and dtor ...</span>
+
+  <span class="hljs-built_in">B</span>(<span class="hljs-type">const</span> B&amp; other) <span class="hljs-comment">// copy constructor</span>
+      : <span class="hljs-built_in">x</span>(other.x),
+        <span class="hljs-built_in">y</span>(other.y),
+        <span class="hljs-built_in">saga</span>(<span class="hljs-string">&quot;copy constructed from object that was &quot;</span> + other.saga) {
+    std::cout &lt;&lt; <span class="hljs-string">&quot;Copy constructor called&quot;</span> &lt;&lt; std::endl;
+  }
+
+  B&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> B&amp; other) { <span class="hljs-comment">// copy assignment operator</span>
+    std::cout &lt;&lt; <span class="hljs-string">&quot;Copy assignment called&quot;</span> &lt;&lt; std::endl;
+    x = other.x;
+    y = other.y;
+    saga = <span class="hljs-string">&quot;(&quot;</span> + saga + <span class="hljs-string">&quot;) then set to object that was (&quot;</span> + other.saga + <span class="hljs-string">&quot;)&quot;</span>;
+    <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;
+  }
+};
+</code></pre>
+<p>Here, we also define the copy assignment operator at the same time. In C++, you
+almost always want to define these two functions together.</p>
+<h4 id="copy-constructor">Copy constructor</h4>
+<p>The syntax is exactly like a constructor that has a single <code>const</code> (immutable)
+reference of the type as the only parameter.</p>
+<pre><code class="language-c++"><span class="hljs-built_in">type</span>(<span class="hljs-type">const</span> type&amp; other) { ... }
+</code></pre>
+<h4 id="copy-assignment-operator">Copy assignment operator</h4>
+<p>The syntax is like a member function named <code>operator=</code>, but it should take in
+a single <code>const</code> reference of type as a parameter, and return a reference of
+the type.</p>
+<pre><code class="language-c++">type&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> type&amp; other) { ... <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>; }
+</code></pre>
+<p>The operator should return <code>*this</code>. This enables us to &quot;chain&quot; assignment
+statements.</p>
+<pre><code class="language-c++">a = b = c;
+<span class="hljs-comment">// same as</span>
+a = (b = c);
+</code></pre>
+<h4 id="demo">Demo</h4>
+<p>With the copy constructor and assignment operator, we can demonstrate how the
+various constructors we've defined so far can be used.</p>
+<pre><code class="language-c++"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">demo3</span><span class="hljs-params">()</span> </span>{
+  B a; <span class="hljs-comment">// Default constructor, no arguments</span>
+  B a_copy = a; <span class="hljs-comment">// Copy constructor, argument is another instance of B</span>
+  <span class="hljs-function">B <span class="hljs-title">b</span><span class="hljs-params">(<span class="hljs-number">1</span>)</span></span>; <span class="hljs-comment">// Custom constructor, int as argument</span>
+  b = a; <span class="hljs-comment">// Copy assignment operator, an assignment whose RHS is another instance of B</span>
+}
+</code></pre>
+<p>now produces the following output:</p>
+<pre><code class="language-text">Default constructor called
+Copy constructor called
+B(int) constructor called
+Copy assignment called
+Destructor called, object was (B(int) constructed) then set to object that was (default constructed)
+Destructor called, object was copy constructed from object that was default constructed
+Destructor called, object was default constructed
+</code></pre>
+<h3 id="move-constructor-and-move-assignment-operator">Move constructor and move assignment operator</h3>
+<p>To round things off, we briefly show the syntax for move operations, but if you
+would like a more detailed explanation of what move is and how it should be
+used, there is a good explanation in Appendix A of the textbook &quot;C++
+Concurrency in Action&quot;, starting at page 354. However, note that while the book
+does not show the assignment operators (likely to save space), you should
+always define the corresponding assignment operators whenever defining a custom
+copy or move constructor.</p>
+<pre><code class="language-c++"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">C</span> {
+  <span class="hljs-comment">// ... previously defined ctors and operators ...</span>
+
+  <span class="hljs-built_in">C</span>(C&amp;&amp; other) <span class="hljs-comment">// Takes in TWO ampersands</span>
+      : <span class="hljs-built_in">x</span>(std::<span class="hljs-built_in">move</span>(other.x)),
+        <span class="hljs-built_in">y</span>(std::<span class="hljs-built_in">move</span>(other.y)),
+        <span class="hljs-built_in">saga</span>(<span class="hljs-string">&quot;move constructed from object that was &quot;</span> + other.saga) {
+    std::cout &lt;&lt; <span class="hljs-string">&quot;Move constructor called&quot;</span> &lt;&lt; std::endl;
+  }
+
+  C&amp; <span class="hljs-keyword">operator</span>=(C&amp;&amp; other) { <span class="hljs-comment">// Takes in TWO ampersands, returns ONE ampersand</span>
+    std::cout &lt;&lt; <span class="hljs-string">&quot;Move assignment called&quot;</span> &lt;&lt; std::endl;
+    x = std::<span class="hljs-built_in">move</span>(other.x);
+    y = std::<span class="hljs-built_in">move</span>(other.y);
+    saga = <span class="hljs-string">&quot;(&quot;</span> + saga + <span class="hljs-string">&quot;) then set to object that was (&quot;</span> + other.saga + <span class="hljs-string">&quot;)&quot;</span>;
+    other.saga = <span class="hljs-string">&quot;(&quot;</span> + other.saga + <span class="hljs-string">&quot;) then moved from&quot;</span>;
+    <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;
+  }
+};
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">demo4</span><span class="hljs-params">()</span> </span>{
+  C c1;
+  std::cout &lt;&lt; <span class="hljs-string">&quot;c1: &quot;</span> &lt;&lt; c1.x &lt;&lt; <span class="hljs-string">&quot;:&quot;</span> &lt;&lt; c1.y &lt;&lt; std::endl;
+  <span class="hljs-function">C <span class="hljs-title">c2</span><span class="hljs-params">(<span class="hljs-number">1</span>)</span></span>;
+  std::cout &lt;&lt; <span class="hljs-string">&quot;c2: &quot;</span> &lt;&lt; c2.x &lt;&lt; <span class="hljs-string">&quot;:&quot;</span> &lt;&lt; c2.y &lt;&lt; std::endl;
+  C c3 = c2;
+  std::cout &lt;&lt; <span class="hljs-string">&quot;c3: &quot;</span> &lt;&lt; c3.x &lt;&lt; <span class="hljs-string">&quot;:&quot;</span> &lt;&lt; c3.y &lt;&lt; std::endl;
+  c3 = c1;
+  std::cout &lt;&lt; <span class="hljs-string">&quot;c3: &quot;</span> &lt;&lt; c3.x &lt;&lt; <span class="hljs-string">&quot;:&quot;</span> &lt;&lt; c3.y &lt;&lt; std::endl;
+  c3 = std::<span class="hljs-built_in">move</span>(c2);
+  std::cout &lt;&lt; <span class="hljs-string">&quot;c2: &quot;</span> &lt;&lt; c2.x &lt;&lt; <span class="hljs-string">&quot;:&quot;</span> &lt;&lt; c2.y &lt;&lt; std::endl;
+  std::cout &lt;&lt; <span class="hljs-string">&quot;c3: &quot;</span> &lt;&lt; c3.x &lt;&lt; <span class="hljs-string">&quot;:&quot;</span> &lt;&lt; c3.y &lt;&lt; std::endl;
+}
+</code></pre>
+<p>Output:</p>
+<pre><code class="language-text">Default constructor called
+c1: 1:
+C(int) constructor called
+c2: 2:This string was constructed with C(int)
+Copy constructor called
+c3: 2:This string was constructed with C(int)
+Copy assignment called
+c3: 1:
+Move assignment called
+c2: 2:
+c3: 2:This string was constructed with C(int)
+Destructor called, object was ((copy constructed from object that was C(int) constructed) then set to object that was (default constructed)) then set to object that was (C(int) constructed)
+Destructor called, object was (C(int) constructed) then moved from
+Destructor called, object was default constructed
+</code></pre>
+<h4 id="move-only-types">Move-only types</h4>
+<p>When a class only defines a move constructor / assignment operator but NOT
+a copy constructor / assignment operator, it can only be moved and not copied.
+This is what types like <code>std::unique_ptr</code> do. When using such
+types, it's important to ensure ownership is properly transferred, e.g. using
+<code>std::move</code>.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>This long primer has covered a lot of ground, but we hope that it has given you a good overview of the C++ language. Please refer to the <a href="https://en.cppreference.com/w/">C++ reference</a> for more details on the language features.</p>
+
+        
+        
+    </body>
+    </html>

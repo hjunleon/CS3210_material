@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>CS3210 Short Primer&colon; Quick Look at C&plus;&plus;</title>
+        <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+/* From extension foam.foam-vscode */
+.foam-placeholder-link {
+  color: var(--vscode-editorWarning-foreground);
+  cursor: default;
+}
+
+.foam-note-link,
+.foam-attachment-link {
+  color: var(--vscode-textLink-foreground);
+}
+
+.foam-tag {
+  color: var(--vscode-editorLineNumber-foreground);
+}
+
+.foam-cyclic-link-warning {
+  background-color: var(--vscode-editorError-background);
+  color: var(--vscode-editorError-foreground);
+}
+
+.embed-container-note {
+  padding: 0.5em;
+  margin: 1.5em 0;
+  border: 1px solid var(--vscode-editorLineNumber-foreground);
+}
+
+.embed-container-attachment {
+  padding: 0.25em;
+  margin: 1.5em 0;
+  text-align: center;
+  border: 1px solid var(--vscode-editorLineNumber-foreground);
+}
+
+.embed-container-image {
+  margin: auto;
+  padding: 0.25em;
+  text-align: center;
+}
+
+</style>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="cs3210-short-primer-quick-look-at-c">CS3210 Short Primer: Quick Look at C++</h1>
+<ul>
+<li><a href="#cs3210-short-primer-quick-look-at-c">CS3210 Short Primer: Quick Look at C++</a>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#compiling-your-code">Compiling your code</a></li>
+<li><a href="#the-standard-library-std">The standard library: <code>std</code></a>
+<ul>
+<li><a href="#input-and-output">Input and Output</a></li>
+<li><a href="#useful-data-structures-in-std">Useful Data Structures in <code>std</code></a></li>
+<li><a href="#aside-auto-in-c">Aside: <code>auto</code> in C++</a></li>
+<li><a href="#iterating-through-containers">Iterating Through Containers</a></li>
+</ul>
+</li>
+<li><a href="#classes">Classes</a></li>
+<li><a href="#references">References</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="introduction">Introduction</h2>
+<p>We primarily use C++ in CS3210 for labs and tutorials, and it is the recommended language for assignments. We will accept C for assignments if you really want to use it instead, but we find that students ultimately prefer to use C++ because of its more powerful features. We will support C++ features up to C++17 in this module.</p>
+<p>This primer is intended to be a <strong>quick overview of a few differences between C and C++</strong> since you should already have some C familiarity from CS2100/CS2106. It is not intended to be a complete introduction, as  C++ in its <em>entirety</em> is significantly more complex than C. We will not focus on the advanced features of C++ in CS3210 - you may view other resources e.g., the <a href="https://www.cplusplus.com/doc/tutorial/">cplusplus.com C++ Tutorial</a>, <a href="https://read.seas.harvard.edu/cs161/2021/doc/cplusplus/">CS161's primer</a>, and our <a href="primer-long.html">long primer</a>. We will focus on describing the <strong>features that are likely to make your life easier</strong>.</p>
+<h2 id="compiling-your-code">Compiling your code</h2>
+<p>You will need a C++ compiler like <code>g++</code> or <code>clang++</code>. Our lab machines will have an updated version of them, i.e., <code>g++ 12</code> and <code>clang++ 16</code>, and you can install these locally on your own machine as well. For this primer, you may also use <a href="https://godbolt.org">Godbolt</a> (an online C++ compiler and assembly explorer) to test code quickly.</p>
+<p>You will need pass the flag <code>-std=c++17</code> if you are using the latest features. Often, you will have to enable POSIX threads (<code>-pthread</code>) when compiling your code. Other useful flags are:</p>
+<ul>
+<li><code>-O3</code>: Enable optimizations</li>
+<li><code>-g</code>: Enable debugging symbols</li>
+<li><code>-Wpedantic -Wconversion -Wall -Werror</code>: Enable a reasonable set of warnings</li>
+<li><code>-fsanitize=address</code>: Compile with AddressSanitizer (detects memory errors)</li>
+<li><code>-fsanitize=thread</code>: Compile with ThreadSanitizer (detects data races and deadlocks)</li>
+</ul>
+<p>An example of a simple compilation command without flags would be <code>g++ my_program.cpp</code>, whereas an entire compilation command could be <code>g++ -std=c++17 -pthread -O3 -g -Wpedantic -Wconversion -Wall -Werror -fsanitize=address -fsanitize=thread -o my_program my_program.cpp</code>, which compiles <code>my_program.cpp</code> into an executable called <code>my_program</code>.</p>
+<h2 id="the-standard-library-std">The standard library: <code>std</code></h2>
+<p>C++ has a standard library called <code>std</code> that contains many useful functions and data structures. We will use the <code>std</code> library throughout CS3210. The <code>std</code> library is defined in the <code>std</code> namespace, so we need to use the <code>std::</code> prefix to access its members.</p>
+<h3 id="input-and-output">Input and Output</h3>
+<p>C++ has a standard library for input and output, and while we can use <code>printf</code> and <code>scanf</code>, there are more idiomatic ways in C++. The standard library is called <code>iostream</code>, and it contains the <code>std::cout</code> and <code>std::cin</code> objects for output and input respectively.</p>
+<pre><code class="language-c++"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span>
+
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>{
+    std::cout &lt;&lt; <span class="hljs-string">&quot;Enter your name: &quot;</span>;
+    <span class="hljs-comment">// String data structure from the std library</span>
+    <span class="hljs-comment">// We will cover this in more detail later </span>
+    std::string name;
+    <span class="hljs-comment">// Reads the next line of input into name</span>
+    std::cin &gt;&gt; name;
+    <span class="hljs-comment">// Prints &quot;Hello, &lt;name&gt;!&quot; to the console with a newline</span>
+    std::cout &lt;&lt; <span class="hljs-string">&quot;Hello, &quot;</span> &lt;&lt; name &lt;&lt; <span class="hljs-string">&quot;!&quot;</span> &lt;&lt; std::endl;
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+</code></pre>
+<h3 id="useful-data-structures-in-std">Useful Data Structures in <code>std</code></h3>
+<p>C++ has many useful data structures in the <code>std</code> library, which is another significant advantage over C. Some examples:</p>
+<pre><code class="language-c++"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span>
+
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-comment">/* 
+       Example of std::vector
+       Compared to C&#x27;s arrays, 
+       std::vector has a flexible size, 
+       you don&#x27;t have to manage memory yourself, etc.
+       Note the &lt;int&gt; in the angle brackets, 
+       which specifies the type of the vector.
+    */</span>
+    std::vector&lt;<span class="hljs-type">int</span>&gt; vec = {<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>};
+    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i : vec) {
+        std::cout &lt;&lt; i &lt;&lt; <span class="hljs-string">&quot; &quot;</span>;
+    }
+    std::cout &lt;&lt; std::endl
+
+    <span class="hljs-comment">/* 
+       Example of std::string
+       Compared to C&#x27;s const char* strings, 
+       std::string has a flexible size, 
+       length checking is constant-time, 
+       and many other conveniences.
+    */</span>
+    std::string str = <span class="hljs-string">&quot;Hello, world!&quot;</span>;
+    std::cout &lt;&lt; str &lt;&lt; std::endl;
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+</code></pre>
+<p>There are many other interesting data structures in the <code>std</code> library, such as <code>std::map</code>, <code>std::set</code>, <code>std::unordered_map</code>, <code>std::unordered_set</code>, <code>std::list</code>, <code>std::queue</code>, <code>std::stack</code>, <code>std::priority_queue</code>, etc. These make it significantly easier to implement basic algorithms. Feel free to explore them on your own.</p>
+<h3 id="aside-auto-in-c">Aside: <code>auto</code> in C++</h3>
+<p>C++ has a keyword called <code>auto</code> that can be used to infer the type of a variable. This is useful for avoiding long type names, and it is also useful for avoiding bugs when the type of a variable changes. An short example of where this might be useful:</p>
+<pre><code class="language-c++"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>{
+    std::string a = <span class="hljs-string">&quot;Hello, world!&quot;</span>;
+    <span class="hljs-keyword">auto</span> b = a; <span class="hljs-comment">// b is inferred to be a std::string</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+</code></pre>
+<h3 id="iterating-through-containers">Iterating Through Containers</h3>
+<p>In this section we show how the syntax of a range based for loop works, which all containers support as a means of iteration.</p>
+<pre><code class="language-c++"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span>
+
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>{
+    std::vector&lt;<span class="hljs-type">int</span>&gt; vec = {<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>};
+    <span class="hljs-comment">// Range-based for loop</span>
+    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i : vec) {
+        std::cout &lt;&lt; i &lt;&lt; <span class="hljs-string">&quot; &quot;</span>;
+    }
+    std::cout &lt;&lt; std::endl;
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+</code></pre>
+<p>This avoids the need for C-style <code>for (int i = 0; i &lt; vec.size(); i++)</code> loops unless necessary, and acts as syntactic sugar for prior <code>.begin() / .end()</code> loops in C++ e.g.,  <code>for (auto it = vec.begin(); it != vec.end(); it++)</code>.</p>
+<h2 id="classes">Classes</h2>
+<p>One major advantage of C++ is that it supports object-oriented programming (OOP) through classes. A class is a user-defined type that can contain data and functions. For example, we can define a class <code>Point</code> that represents a point in 2D space:</p>
+<pre><code class="language-c++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Point</span> {
+<span class="hljs-keyword">private</span>:
+  <span class="hljs-type">int</span> x_;
+  <span class="hljs-type">int</span> y_;
+<span class="hljs-keyword">public</span>:  
+  <span class="hljs-comment">// Constructor</span>
+  <span class="hljs-built_in">Point</span>(<span class="hljs-type">int</span> x, <span class="hljs-type">int</span> y) {
+    x_ = x;
+    y_ = y;
+  }
+  <span class="hljs-comment">// Constructor with similar behavior as above, shorthand</span>
+  <span class="hljs-built_in">Point</span>(<span class="hljs-type">int</span> x, <span class="hljs-type">int</span> y) : <span class="hljs-built_in">x_</span>(x), <span class="hljs-built_in">y_</span>(y) {}
+  <span class="hljs-comment">// Public member functions</span>
+  <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">x</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>{ <span class="hljs-keyword">return</span> x_; }
+  <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">y</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>{ <span class="hljs-keyword">return</span> y_; }
+</code></pre>
+<p>The <code>public</code> keyword specifies that the members below it are accessible to users of the class. The <code>private</code> keyword specifies that the members below it are only accessible to the class itself. In this case, we have two private members <code>x_</code> and <code>y_</code> that represent the coordinates of the point. We also have two public functions <code>x()</code> and <code>y()</code> that return the coordinates. The <code>const</code> keyword specifies that the functions do not modify the class members.</p>
+<p>One difference you can see here with respect to other OOP languages like Java is the presence of the &quot;initializer list&quot; constructor <code>Point(int x, int y) : x_(x), y_(y) {}</code>. This is a shorthand for the more traditional-looking constructor above it.</p>
+<p>We can use the class as follows:</p>
+<pre><code class="language-c++"><span class="hljs-function">Point <span class="hljs-title">p</span><span class="hljs-params">(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>)</span></span>;
+std::cout &lt;&lt; p.<span class="hljs-built_in">x</span>() &lt;&lt; <span class="hljs-string">&quot;, &quot;</span> &lt;&lt; p.<span class="hljs-built_in">y</span>() &lt;&lt; std::endl;
+</code></pre>
+<p>There are many other intriciacies with classes such as copy constructors, move constructors, assignment constructors, destructors, inheritance, etc. We will not cover them in this primer (and you may not even need to use them), but you can read more about them in the <a href="https://www.cplusplus.com/doc/tutorial/">cplusplus.com C++ Tutorial</a>.</p>
+<h2 id="references">References</h2>
+<p>C++ has a concept called references, which are similar to pointers in C. However, references are more convenient to use than pointers in many cases. For example, we can define a function that increments an integer by one:</p>
+<pre><code class="language-c++"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">increment</span><span class="hljs-params">(<span class="hljs-type">int</span>&amp; x)</span> </span>{
+    x++;
+}
+
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-type">int</span> x = <span class="hljs-number">5</span>;
+    <span class="hljs-built_in">increment</span>(x);
+    std::cout &lt;&lt; x &lt;&lt; std::endl; <span class="hljs-comment">// prints 6</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+</code></pre>
+<p>The <code>&amp;</code> symbol in the function definition specifies that the parameter <code>x</code> is a reference to an integer. This means that the function can modify the value of <code>x</code> in the caller. In this case, the function increments the value of <code>x</code> by one.</p>
+<p>This is a better approach than the use of &quot;raw pointers&quot; by C, which is error-prone and can lead to memory leaks. References <em>cannot be null</em> and are <em>guaranteed to be valid</em> for the lifetime of the object.</p>
+<p>For extra exploration, see <a href="https://en.cppreference.com/book/intro/smart_pointers">smart pointers in C++</a></p>
+<h2 id="conclusion">Conclusion</h2>
+<p>This primer is not intended to be a complete introduction to C++, but the knowledge about the standard library, data structures, and classes should be sufficient to get you started on the labs, tutorials, and assignments. Feel free to explore the <a href="https://www.cplusplus.com/doc/tutorial/">cplusplus.com C++ Tutorial</a>, <a href="https://read.seas.harvard.edu/cs161/2021/doc/cplusplus/">CS161's primer</a>, and our <a href="primer-long.html">long primer</a>.</p>
+
+        
+        
+    </body>
+    </html>

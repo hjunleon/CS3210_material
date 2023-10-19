@@ -1,0 +1,3 @@
+sudo openfortivpn webvpn.comp.nus.edu.sg --username=e0528182 --password=burnout_X-123
+ssh e0528182@soctf-pdc-002.d1.comp.nus.edu.sg
+ - password: legendzeldapokefan123

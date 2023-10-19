@@ -1,0 +1,49 @@
+Common OPEN MP 
+
+#pragma omp single
+The omp single directive identifies a section of code that must be run by a single available thread.
+ - Single section (#pragma omp single): Only a single thread will execute the code. The runtime decides
+which thread will get to execute.
+ - Master section (#pragma omp master): Only the master thread executes the code.
+ 
+ Omp Sections: 
+ The programmer manually defines some code blocks that will be assigned to any available thread, one at a time.
+  - 
+
+OMP reduction
+ - https://www.intel.com/content/www/us/en/docs/advisor/user-guide/2023-0/openmp-reduction-operations.html
+ 
+ 
+ First private, last private, ordered
+ https://iq.opengenus.org/openmp-clauses/
+ 
+  - firstprivate(tmp) Initializes each private copy with the corresponding
+value from the master thread.
+  - lastprivate(tmp) passes the value of a private from the
+last iteration to a global variable.
+
+
+copyprivate is a clause that can be used in a single construct; it acts as a mechanism to broadcast the value of a variable private to an implicit task to those of other implicit tasks in the parallel region.
+ - https://rookiehpc.org/openmp/docs/copyprivate/index.html
+
+Omp FLush
+-to enforce consistency between a thread's temporary view of memory and memory, or between multiple threads' view of memory. If a flush operation is a strong flush, it enforces consistency between a thread's temporary view and memory.
+- https://stackoverflow.com/questions/19687233/explict-flush-directive-with-openmp-when-is-it-necessary-and-when-is-it-helpful
+- The general recommendation is that flushes should not be used. If at all, programmers should avoid flush with a list (flush(var,...)) at all means. Some folks are actually talking about deprecating it in future OpenMP.
+-OpenMP makes sure that each thread has a consistent view on the shared memory when it needs to. If threads do not synchronize, they do not need to update their view on the shared memory, because they do not see any "interesting" change there. That means that any read a thread makes does not read any data that has been changed by some other thread. 
+
+
+https://stackoverflow.com/questions/27361329/why-reduction-is-so-fast-in-openmpit-almost-twice-as-fast-as-the-other-solution
+ - When we use the reduction clause, the compiler creates a private copy of the variables specified in the reduction(operator:list) and at the end of execution of all threads, the operator specified in reduction is applied on each of the private copy into one global copy. Hence the threads do not need to wait for acquiring locks so that they can write to the variables, which gives better performance as compared to using atomic or critical in which each thread waits to acquire a lock
+ 
+ 
+ Omp is parbegin parend
+ https://www.geeksforgeeks.org/parbegin-parend-concurrent-statement/
+ 
+ 
+ Other links:
+  https://hpc-tutorials.llnl.gov/openmp/
+   - Cache coherency makes certain that if one CPU executes a read or write instruction from/to memory, then all other CPUs in the system will get the same value from that memory address when they access it. All caches will show a coherent value. However, in the OpenMP standard there must be a way to instruct the compiler to actually insert the read/write machine instruction and not postpone it. Keeping a variable in a register in a loop is very common when producing efficient machine language code for a loop.
+   
+   Cheatsheet: https://www.openmp.org/wp-content/uploads/OpenMPRefCard-5-2-web.pdf
+   

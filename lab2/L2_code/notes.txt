@@ -1,0 +1,21 @@
+srun perf stat -M GFLOPs -- ./mm-omp 100 5
+g++ -fopenmp -o mm1 mm-omp.cpp
+
+
+2.2 instructions per cycle
+ Performance counter stats for './mm-omp 100 5':
+
+                 0      fp_arith_inst_retired.512b_packed_double #     0.22 GFLOPs                   (1.32%)
+                 0      fp_arith_inst_retired.256b_packed_single                                     (70.00%)
+                 0      fp_arith_inst_retired.scalar_double                                     (95.44%)
+                 0      fp_arith_inst_retired.128b_packed_single
+                 0      fp_arith_inst_retired.512b_packed_single                                     (99.65%)
+         2,943,208      fp_arith_inst_retired.scalar_single                                     (64.86%)
+                 0      fp_arith_inst_retired.256b_packed_double                                     (10.84%)
+     <not counted>      fp_arith_inst_retired.128b_packed_double                                     (0.00%)
+        13,224,250 ns   duration_time
+
+       0.013224250 seconds time elapsed
+
+       0.035586000 seconds user
+       0.003558000 seconds sys

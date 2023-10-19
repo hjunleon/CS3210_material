@@ -1,0 +1,16 @@
+Symmetric multiprocessing
+ - SMP systems have centralized shared memory called main memory (MM) operating under a single operating system with two or more homogeneous processors. Usually each processor has an associated private high-speed memory known as cache memory (or cache) to speed up the main memory data access and to reduce the system bus traffic.
+
+Processors may be interconnected using buses, crossbar switches or on-chip mesh networks. The bottleneck in the scalability of SMP using buses or crossbar switches is the bandwidth and power consumption of the interconnect among the various processors, the memory, and the disk arrays. Mesh architectures avoid these bottlenecks, and provide nearly linear scalability to much higher processor counts at the sacrifice of programmability:
+
+Serious programming challenges remain with this kind of architecture because it requires two distinct modes of programming; one for the CPUs themselves and one for the interconnect between the CPUs. A single programming language would have to be able to not only partition the workload, but also comprehend the memory locality, which is severe in a mesh-based architecture.[4]
+
+SMP systems allow any processor to work on any task no matter where the data for that task is located in memory, provided that each task in the system is not in execution on two or more processors at the same time. With proper operating system support, SMP systems can easily move tasks between processors to balance the workload efficiently.
+
+
+Parbegin parend:
+ - https://www.geeksforgeeks.org/parbegin-parend-concurrent-statement/
+ -  All statements can be executed concurrently those are enclosed between PARBEGIN and PAREND. It is used in modelling precedence graph. It is used as an alternative for the FORK/JOIN statement. 
+ 
+ 
+ 
