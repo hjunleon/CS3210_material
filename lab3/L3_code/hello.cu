@@ -9,18 +9,19 @@
 
 #include <stdio.h>
 
-#define N       32 
+#define N 32
 
 // #define      DISCRETE
 
 __global__ void hello(char *a, int len)
 {
-        int tid = threadIdx.x;
+        int blockId = blockIdx.x + blockIdx.y * gridDim.x + gridDim.x * gridDim.y * blockIdx.z;
+        int threadId = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
+        int tid = threadId;
         if (tid >= len)
                 return;
         a[tid] += 'A' - 'a';
 }
-
 int main()
 {
         // original string
@@ -28,22 +29,21 @@ int main()
         // length
         int len = strlen(a);
         // pointer to the string on device
-        char* ad;
+        char *ad;
         // pointer to the final string on host
-        char* ah;
+        char *ah;
         // CUDA returned error code
         cudaError_t rc;
 
-
-        //allocate space for the string on device (GPU) memory
-        cudaMalloc((void**)&ad, N);
+        // allocate space for the string on device (GPU) memory
+        cudaMalloc((void **)&ad, N);
         cudaMemcpy(ad, a, N, cudaMemcpyHostToDevice);
 
         // launch the kernel
         hello<<<1, N>>>(ad, len);
         cudaDeviceSynchronize();
 
-	// for discrete GPUs, get the data from device memory to host memory
+        // for discrete GPUs, get the data from device memory to host memory
         cudaMemcpy(a, ad, N, cudaMemcpyDeviceToHost);
         ah = a;
 
@@ -60,4 +60,3 @@ int main()
 
         return 0;
 }
-
